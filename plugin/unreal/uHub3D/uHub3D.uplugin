@@ -1,0 +1,22 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0.0",
+  "FriendlyName": "uHub 3D",
+  "Description": "Import assets from the uHub 3D library into the Content Browser.",
+  "Category": "Importers",
+  "CreatedBy": "uHub 3D",
+  "CanContainContent": true,
+  "IsBetaVersion": false,
+  "Installed": false,
+  "Plugins": [
+    {
+      "Name": "PythonScriptPlugin",
+      "Enabled": true
+    },
+    {
+      "Name": "EditorScriptingUtilities",
+      "Enabled": true
+    }
+  ]
+}
