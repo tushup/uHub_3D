@@ -1,3 +1,4 @@
+pub mod bridge;
 pub mod commands;
 pub mod error;
 pub mod images;
@@ -18,10 +19,11 @@ use std::sync::{Arc, Mutex};
 
 #[cfg(target_os = "macos")]
 use tauri::menu::{Menu, MenuItem, PredefinedMenuItem, Submenu};
-#[cfg(target_os = "macos")]
 use tauri::Emitter;
 use tauri::Manager;
 
+use crate::bridge::{Bridge, BridgeStatus};
+use crate::error::LibError;
 use crate::library::Library;
 use crate::settings::{settings_path, Settings};
 
@@ -30,6 +32,8 @@ pub struct AppState {
     pub library: Mutex<Library>,
     /// Set by `cancel_render`; read by the render loop.
     pub cancel: Arc<AtomicBool>,
+    pub bridge: Mutex<Option<Bridge>>,
+    pub bridge_status: Mutex<BridgeStatus>,
 }
 
 // Native menu exists on macOS only (D-18). Windows/Linux use the
@@ -106,9 +110,23 @@ fn handle_menu_event(app: &tauri::AppHandle, event: tauri::menu::MenuEvent) {
     }
 }
 
+
+fn bridge_on_change(app: tauri::AppHandle) -> Arc<dyn Fn(Vec<crate::bridge::ConnectionInfo>) + Send + Sync> {
+    Arc::new(move |conns: Vec<crate::bridge::ConnectionInfo>| {
+        let _ = app.emit("bridge://connections", conns);
+    })
+}
+
+fn bridge_error_reason(error: &LibError) -> String {
+    match error {
+        LibError::Bridge(message) => message.clone(),
+        other => other.to_string(),
+    }
+}
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let settings = Settings::load(&settings_path());
+    let settings_port = settings.port;
     let library = Library {
         root: settings.library_root.clone(),
     };
@@ -119,6 +137,11 @@ pub fn run() {
             settings: Mutex::new(settings),
             library: Mutex::new(library),
             cancel: Arc::new(AtomicBool::new(false)),
+            bridge: Mutex::new(None),
+            bridge_status: Mutex::new(BridgeStatus::Offline {
+                port: settings_port,
+                reason: "Bridge not started".to_string(),
+            }),
         });
     #[cfg(target_os = "macos")]
     let builder = builder.menu(build_menu).on_menu_event(handle_menu_event);
@@ -137,6 +160,9 @@ pub fn run() {
             commands::cli_path,
             commands::delete_asset,
             commands::reveal_asset,
+            commands::get_connections,
+            commands::get_bridge_status,
+            commands::export_asset,
         ])
         .setup(|app| {
             let state = app.state::<AppState>();
@@ -147,6 +173,38 @@ pub fn run() {
                 .unwrap_or_default();
             std::fs::create_dir_all(&root)?;
             app.asset_protocol_scope().allow_directory(&root, true)?;
+            let port = state
+                .settings
+                .lock()
+                .map(|s| s.port)
+                .unwrap_or(47913);
+            let (tx, rx) = std::sync::mpsc::channel();
+            let on_change = bridge_on_change(app.handle().clone());
+            tauri::async_runtime::spawn(async move {
+                let result = Bridge::start(port, on_change).await;
+                let _ = tx.send(result);
+            });
+            let status = match rx.recv() {
+                Ok(Ok(bridge)) => {
+                    let bound = bridge.port();
+                    if let Ok(mut slot) = state.bridge.lock() {
+                        *slot = Some(bridge);
+                    }
+                    BridgeStatus::Online { port: bound }
+                }
+                Ok(Err(error)) => BridgeStatus::Offline {
+                    port,
+                    reason: bridge_error_reason(&error),
+                },
+                Err(_) => BridgeStatus::Offline {
+                    port,
+                    reason: "Bridge failed to start".to_string(),
+                },
+            };
+            if let Ok(mut slot) = state.bridge_status.lock() {
+                *slot = status.clone();
+            }
+            let _ = app.emit("bridge://status", status);
             Ok(())
         })
         .run(tauri::generate_context!())

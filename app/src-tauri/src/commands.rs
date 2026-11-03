@@ -9,6 +9,7 @@ use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager, State};
 use tauri_plugin_opener::OpenerExt;
 
+use crate::bridge::{Bridge, BridgeStatus, ConnectionInfo, JobResult};
 use crate::error::LibError;
 use crate::images::{hdr_preview_data_url, hdr_size, image_preview_data_url};
 use crate::library::{AssetEntry, Library, PlannedSave};
@@ -49,8 +50,36 @@ pub async fn set_settings(
     app.asset_protocol_scope()
         .allow_directory(&root, true)
         .map_err(|e| LibError::Io(std::io::Error::other(e.to_string())))?;
+    let old_port = lock(&state.settings)?.port;
+    let new_port = settings.port;
     *lock(&state.settings)? = settings;
     *lock(&state.library)? = Library { root };
+    if new_port != old_port {
+        if let Some(old_bridge) = lock(&state.bridge)?.take() {
+            old_bridge.shutdown();
+        }
+        let handle = app.clone();
+        let on_change: std::sync::Arc<dyn Fn(Vec<ConnectionInfo>) + Send + Sync> =
+            std::sync::Arc::new(move |conns: Vec<ConnectionInfo>| {
+                let _ = handle.emit("bridge://connections", conns);
+            });
+        let status = match Bridge::start(new_port, on_change).await {
+            Ok(bridge) => {
+                let bound = bridge.port();
+                *lock(&state.bridge)? = Some(bridge);
+                BridgeStatus::Online { port: bound }
+            }
+            Err(error) => {
+                let reason = match &error {
+                    LibError::Bridge(message) => message.clone(),
+                    other => other.to_string(),
+                };
+                BridgeStatus::Offline { port: new_port, reason }
+            }
+        };
+        *lock(&state.bridge_status)? = status.clone();
+        let _ = app.emit("bridge://status", status);
+    }
     Ok(())
 }
 
@@ -224,4 +253,37 @@ pub async fn reveal_asset(app: AppHandle, dir: PathBuf) -> Result<(), LibError> 
     app.opener()
         .reveal_item_in_dir(dir)
         .map_err(|e| LibError::Io(std::io::Error::other(e.to_string())))
+}
+
+#[tauri::command]
+pub async fn get_connections(state: State<'_, AppState>) -> Result<Vec<ConnectionInfo>, LibError> {
+    let bridge = lock(&state.bridge)?.clone();
+    Ok(bridge.map(|b| b.connections()).unwrap_or_default())
+}
+
+#[tauri::command]
+pub async fn get_bridge_status(state: State<'_, AppState>) -> Result<BridgeStatus, LibError> {
+    Ok(lock(&state.bridge_status)?.clone())
+}
+
+#[tauri::command]
+pub async fn export_asset(
+    state: State<'_, AppState>,
+    conn_id: u64,
+    renderer: String,
+    asset_dir: String,
+) -> Result<JobResult, LibError> {
+    let bridge = lock(&state.bridge)?
+        .clone()
+        .ok_or_else(|| LibError::Bridge("Bridge offline".to_string()))?;
+    let root = lock(&state.library)?.root.clone();
+    bridge
+        .send_import(
+            conn_id,
+            &renderer,
+            &root,
+            std::path::Path::new(&asset_dir),
+            Duration::from_secs(120),
+        )
+        .await
 }

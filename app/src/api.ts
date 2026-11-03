@@ -263,8 +263,24 @@ export function getConnections(): Promise<ConnectionInfo[]> {
   return invoke<ConnectionInfo[]>("get_connections");
 }
 
+export type BridgeStatus =
+  | { state: "online"; port: number }
+  | { state: "offline"; port: number; reason: string };
+
+export function getBridgeStatus(): Promise<BridgeStatus> {
+  return invoke<BridgeStatus>("get_bridge_status");
+}
+
+export function onConnections(cb: (conns: ConnectionInfo[]) => void): Promise<UnlistenFn> {
+  return listen<ConnectionInfo[]>("bridge://connections", (event) => cb(event.payload));
+}
+
+export function onBridgeStatus(cb: (status: BridgeStatus) => void): Promise<UnlistenFn> {
+  return listen<BridgeStatus>("bridge://status", (event) => cb(event.payload));
+}
+
 export function exportAsset(connId: number, renderer: string, dir: string): Promise<JobResult> {
-  return invoke<JobResult>("export_asset", { connId, renderer, dir });
+  return invoke<JobResult>("export_asset", { connId, renderer, assetDir: dir });
 }
 
 export function getSettings(): Promise<Settings> {
