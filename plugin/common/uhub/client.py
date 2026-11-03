@@ -125,6 +125,10 @@ class BridgeClient:
         while not self._stop.is_set():
             try:
                 sock = socket.create_connection((self.host, self.port), timeout=5.0)
+                # create_connection leaves the connect timeout on the
+                # socket; idle reads would raise after 5 s and drop the
+                # connection. Restore blocking mode for the session.
+                sock.settimeout(None)
             except OSError:
                 self._stop.wait(self.reconnect_s)
                 continue

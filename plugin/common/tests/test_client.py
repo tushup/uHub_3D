@@ -209,6 +209,22 @@ def test_client_hello_and_job():
         server.close()
 
 
+def test_client_socket_is_blocking_after_connect():
+    # Regression: create_connection(timeout=5) leaves the timeout on the
+    # socket, so an idle connection died after 5 s and reconnect-looped.
+    server = FakeServer()
+    client = BridgeClient("blender", "5.1.2", ["cycles"], port=server.port, reconnect_s=0.1)
+    client.start()
+    try:
+        json.loads(server.accept())
+        assert wait_for(lambda: client.connected)
+        assert client._sock is not None
+        assert client._sock.gettimeout() is None
+    finally:
+        client.stop()
+        server.close()
+
+
 def test_client_reconnects():
     server = FakeServer()
     client = BridgeClient("blender", "5.1.2", ["cycles"], port=server.port, reconnect_s=0.1)
