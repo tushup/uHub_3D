@@ -1,6 +1,14 @@
 import { useEffect } from "react";
 
-import { getSettings, listAssets, type AssetType } from "./api";
+import {
+  getBridgeStatus,
+  getConnections,
+  getSettings,
+  listAssets,
+  onBridgeStatus,
+  onConnections,
+  type AssetType,
+} from "./api";
 import { SAVE_DIALOG_EVENT, useShortcuts } from "./hooks/useShortcuts";
 import AssetGrid from "./components/AssetGrid";
 import DetailPanel from "./components/DetailPanel";
@@ -45,6 +53,8 @@ export default function App() {
   });
 
   const setSettings = useStore((s) => s.setSettings);
+  const setConnections = useStore((s) => s.setConnections);
+  const setBridgeStatus = useStore((s) => s.setBridgeStatus);
 
   useEffect(() => {
     listAssets()
@@ -54,7 +64,29 @@ export default function App() {
     getSettings()
       .then(setSettings)
       .catch(() => {});
-  }, [setAssets, toast, setSettings, setLoaded]);
+    getConnections()
+      .then(setConnections)
+      .catch(() => {});
+    getBridgeStatus()
+      .then(setBridgeStatus)
+      .catch(() => {});
+    let unlistenConnections: (() => void) | undefined;
+    let unlistenStatus: (() => void) | undefined;
+    onConnections(setConnections)
+      .then((fn) => {
+        unlistenConnections = fn;
+      })
+      .catch(() => {});
+    onBridgeStatus(setBridgeStatus)
+      .then((fn) => {
+        unlistenStatus = fn;
+      })
+      .catch(() => {});
+    return () => {
+      unlistenConnections?.();
+      unlistenStatus?.();
+    };
+  }, [setAssets, toast, setSettings, setLoaded, setConnections, setBridgeStatus]);
 
   // Re-scan on window focus (D-27): CLI changes appear without a
   // file watcher. Manual deletes from disk resolve this way too.

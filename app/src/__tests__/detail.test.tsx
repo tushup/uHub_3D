@@ -128,8 +128,13 @@ test("delete asks confirmation before calling api", async () => {
 });
 
 test("export dock placeholder is shown", () => {
+  // Task 11b replaced the SOON ghost dock with the live export dock.
+  useStore.setState({ connections: [], bridgeStatus: { state: "online", port: 47913 } });
   render(<DetailPanel />);
   expect(screen.getByText("Export to DCC")).toBeTruthy();
-  expect(screen.getByText("SOON")).toBeTruthy();
+  expect(screen.queryByText("SOON")).toBeNull();
   expect(screen.getByText("Blender")).toBeTruthy();
+  expect(
+    screen.getByText("Open Blender, Maya or Unreal with the uHub3D plugin enabled."),
+  ).toBeTruthy();
 });

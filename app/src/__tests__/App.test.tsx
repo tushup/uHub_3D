@@ -17,6 +17,10 @@ vi.mock("../api", async (importOriginal) => {
     ...orig,
     listAssets: vi.fn(() => Promise.resolve([])),
     getSettings: vi.fn(() => Promise.resolve({ libraryRoot: "C:/Lib", port: 47913 })),
+    getConnections: vi.fn(() => Promise.resolve([])),
+    getBridgeStatus: vi.fn(() => Promise.resolve({ state: "online", port: 47913 })),
+    onConnections: vi.fn(() => Promise.resolve(() => {})),
+    onBridgeStatus: vi.fn(() => Promise.resolve(() => {})),
     onNewAsset: vi.fn(() => Promise.resolve(() => {})),
     onPreferences: vi.fn(() => Promise.resolve(() => {})),
   };

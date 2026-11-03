@@ -4,7 +4,7 @@ import { deleteAsset, listAssets, revealAsset, thumbUrl, type Material } from ".
 import { selectedAsset, useStore } from "../store";
 import Button from "./ui/Button";
 import Chip, { CHIP_LABELS } from "./ui/Chip";
-import Eyebrow from "./ui/Eyebrow";
+import ExportPanel from "./ExportPanel";
 import WireCube from "./ui/WireCube";
 import { sphereStyle } from "./sphere";
 
@@ -199,22 +199,7 @@ export default function DetailPanel() {
             Delete
           </Button>
         </div>
-        <div className="mb-2.5 flex items-center justify-between">
-          <Eyebrow>Export to DCC</Eyebrow>
-          <span className="rounded-full border border-dashed border-[#2E2E33] px-2 py-0.5 font-mono text-[10px] text-text-3">
-            SOON
-          </span>
-        </div>
-        <div className="grid grid-cols-3 gap-1.5 opacity-45">
-          {["Blender", "Maya", "Unreal"].map((dcc) => (
-            <span
-              key={dcc}
-              className="flex h-[34px] items-center justify-center rounded-[9px] border border-line text-xs text-text-2"
-            >
-              {dcc}
-            </span>
-          ))}
-        </div>
+        <ExportPanel dir={entry.dir} />
       </div>
 
       {confirming && (

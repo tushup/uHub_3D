@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-import type { AssetEntry, AssetType, ConnectionInfo, Settings } from "./api";
+import type { AssetEntry, AssetType, BridgeStatus, ConnectionInfo, Settings } from "./api";
 
 export interface Toast {
   id: number;
@@ -16,6 +16,7 @@ export interface AppState {
   selectedDir: string | null;
   assets: AssetEntry[];
   connections: ConnectionInfo[];
+  bridgeStatus: BridgeStatus | null;
   lastExport: { connId?: number; renderer?: string };
   toasts: Toast[];
   newAssetRequest: { type: AssetType; nonce: number } | null;
@@ -34,6 +35,7 @@ export interface AppState {
   select: (dir: string | null) => void;
   setAssets: (assets: AssetEntry[]) => void;
   setConnections: (connections: ConnectionInfo[]) => void;
+  setBridgeStatus: (status: BridgeStatus | null) => void;
   setLastExport: (last: { connId?: number; renderer?: string }) => void;
   toast: (kind: Toast["kind"], message: string, sub?: string) => void;
   loaded: boolean;
@@ -50,6 +52,7 @@ export const useStore = create<AppState>((set, get) => ({
   selectedDir: null,
   assets: [],
   connections: [],
+  bridgeStatus: null,
   lastExport: {},
   toasts: [],
   setTab: (tab) => set({ tab, category: null, selectedDir: null }),
@@ -58,6 +61,7 @@ export const useStore = create<AppState>((set, get) => ({
   select: (dir) => set({ selectedDir: dir }),
   setAssets: (assets) => set({ assets }),
   setConnections: (connections) => set({ connections }),
+  setBridgeStatus: (bridgeStatus) => set({ bridgeStatus }),
   setLastExport: (lastExport) => set({ lastExport }),
   toast: (kind, message, sub) => {
     const id = nextToastId++;
