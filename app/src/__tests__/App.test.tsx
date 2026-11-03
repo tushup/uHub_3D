@@ -71,6 +71,18 @@ test("app_root_clips_to_viewport", async () => {
   }
 });
 
+test("topbar_tabs_not_absolute", async () => {
+  const { container } = render(<App />);
+  await act(async () => {});
+  const header = container.querySelector("header");
+  expect(header).toBeTruthy();
+  expect(header?.className).toContain("grid");
+  expect(header?.style.gridTemplateColumns).toBe("1fr auto 1fr");
+  const tabGroup = container.querySelector('nav[aria-label="Asset type"]');
+  expect(tabGroup).toBeTruthy();
+  expect(tabGroup?.classList.contains("absolute")).toBe(false);
+});
+
 test("focus triggers rescan", async () => {
   useStore.setState({ assets: [], loaded: false, selectedDir: null });
   render(<App />);

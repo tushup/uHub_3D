@@ -86,10 +86,10 @@ export default function TopBar() {
   return (
     <header
       data-tauri-drag-region
-      className="flex h-[52px] items-center gap-4 border-b border-divider bg-bg pr-2"
-      style={{ paddingLeft: mac ? 78 : 16 }}
+      className="grid h-[52px] items-center gap-4 border-b border-divider bg-bg pr-2"
+      style={{ paddingLeft: mac ? 78 : 16, gridTemplateColumns: "1fr auto 1fr" }}
     >
-      <div className="flex min-w-0 flex-1 items-center gap-2.5">
+      <div className="flex items-center gap-2.5">
         <Logo />
         <span className="text-[15px] font-bold tracking-[-0.02em] text-text">uHub</span>
         <span className="rounded-md border border-accent-tint-border px-1.5 py-0.5 font-mono text-[11px] text-accent">
@@ -121,8 +121,8 @@ export default function TopBar() {
         ))}
       </nav>
 
-      <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
-        <label className="flex h-9 w-[260px] max-w-full items-center gap-2 rounded-[10px] border border-line bg-surface px-3 text-text-3">
+      <div className="flex items-center justify-end gap-2">
+        <label className="flex h-9 min-w-[160px] w-[260px] max-w-full items-center gap-2 rounded-[10px] border border-line bg-surface px-3 text-text-3">
           <SearchIcon />
           <span className="sr-only">Search assets</span>
           <input
