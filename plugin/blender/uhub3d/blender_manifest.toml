@@ -1,0 +1,13 @@
+schema_version = "1.0.0"
+id = "uhub3d"
+version = "1.0.0"
+name = "uHub 3D"
+tagline = "Import assets from the uHub 3D library"
+maintainer = "uHub 3D"
+type = "add-on"
+blender_version_min = "4.2.0"
+license = ["SPDX:GPL-3.0-or-later"]
+
+[permissions]
+network = "Receive asset imports from the uHub 3D app on localhost"
+files = "Import assets from the uHub 3D library"
