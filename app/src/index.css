@@ -1,0 +1,206 @@
+@import "@fontsource/geist-sans/400.css";
+@import "@fontsource/geist-sans/500.css";
+@import "@fontsource/geist-sans/600.css";
+@import "@fontsource/geist-sans/700.css";
+@import "@fontsource/geist-mono/400.css";
+@import "@fontsource/geist-mono/500.css";
+@import "@fontsource/geist-mono/600.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #0a0a0b;
+  color: #ededef;
+  font-family: "Geist Sans", Geist, system-ui, sans-serif;
+}
+
+:focus-visible {
+  outline: 2px solid #d4ff3a;
+  outline-offset: 2px;
+}
+
+/* Studio Dark motion (docs/design/STUDIO_DARK.md §3). CSS only. */
+@keyframes uh-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes uh-pop {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes uh-slidein {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes uh-spin-cube {
+  from {
+    transform: rotateX(-24deg) rotateY(0deg);
+  }
+  to {
+    transform: rotateX(-24deg) rotateY(360deg);
+  }
+}
+
+@keyframes uh-pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes uh-drain {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+@keyframes uh-dash {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+.dash-rect {
+  animation: uh-dash 1.6s linear infinite;
+}
+
+@keyframes uh-pan {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.pano-img {
+  animation: uh-pan 24s linear infinite alternate;
+}
+
+@keyframes uh-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.anim-float {
+  animation: uh-float 5s ease-in-out infinite;
+}
+
+@keyframes uh-scan {
+  0% {
+    left: 2%;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    left: 96%;
+    opacity: 0;
+  }
+}
+
+.anim-rise {
+  animation: uh-rise 600ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.anim-pop {
+  animation: uh-pop 550ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.anim-slidein {
+  animation: uh-slidein 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.anim-toast-in {
+  animation: uh-rise 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.uh-cube {
+  transform-style: preserve-3d;
+  animation: uh-spin-cube 14s linear infinite;
+}
+
+.uh-cube-slow {
+  transform-style: preserve-3d;
+  animation: uh-spin-cube 18s linear infinite;
+}
+
+.pulse-dot {
+  animation: uh-pulse-dot 2.4s ease-in-out infinite;
+}
+
+.drain-bar {
+  animation: uh-drain 5s linear forwards;
+}
+
+.scan-line {
+  animation: uh-scan 7s ease-in-out infinite;
+}
+
+.dot-grid {
+  background-image: radial-gradient(circle, #1a1a1d 1px, transparent 1.2px);
+  background-size: 28px 28px;
+}
+
+.tab-indicator {
+  transition: transform 450ms cubic-bezier(0.3, 1.4, 0.4, 1);
+}
+
+input[type="range"].uh-range {
+  accent-color: #d4ff3a;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .uh-cube,
+  .uh-cube-slow,
+  .scan-line {
+    animation: none !important;
+  }
+}

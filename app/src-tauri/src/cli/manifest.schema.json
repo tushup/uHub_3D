@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "uHub 3D asset manifest",
+  "description": "One asset draft, or an array of drafts for a batch. Relative paths resolve from the manifest file's folder (from the current directory when the manifest comes from stdin).",
+  "anyOf": [
+    { "$ref": "#/definitions/asset" },
+    { "type": "array", "items": { "$ref": "#/definitions/asset" }, "minItems": 1 }
+  ],
+  "definitions": {
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assetType", "name", "category", "tags", "materials", "rotation", "intensity"],
+      "properties": {
+        "assetType": { "type": "string", "enum": ["model", "material", "hdri"] },
+        "name": { "type": "string", "description": "Display name; sanitized to [A-Za-z0-9_], spaces become _." },
+        "category": { "type": "string", "description": "Category folder; same sanitizing as name." },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "modelSrc": { "type": ["string", "null"], "description": "Model file (.fbx or .obj). Required for assetType model." },
+        "hdriSrc": { "type": ["string", "null"], "description": "HDRI file (.hdr). Required for assetType hdri." },
+        "thumbnailSrc": { "type": ["string", "null"], "description": "Optional thumbnail override image (.png/.jpg/.jpeg/.tga). Replaces the rendered thumbnail (fit 512). Prefer leaving this out so the view is rendered." },
+        "materials": { "type": "array", "items": { "$ref": "#/definitions/material" } },
+        "rotation": { "type": "number", "description": "HDRI rotation in degrees (0 when unused)." },
+        "intensity": { "type": "number", "description": "HDRI intensity multiplier (1 when unused)." },
+        "view": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["yaw", "pitch", "zoom"],
+          "properties": {
+            "yaw": { "type": "number", "description": "Degrees. Default -30." },
+            "pitch": { "type": "number", "description": "Degrees, -89..89. Default 15." },
+            "zoom": { "type": "number", "description": "0.5..4. Default 1." }
+          }
+        }
+      }
+    },
+    "material": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["originalName", "name", "attributes"],
+      "properties": {
+        "originalName": { "type": "string", "description": "Name of the material inside the model file (FBX/OBJ). Mesh groups bind to drafts by this name. For material assets, repeat the asset name." },
+        "name": { "type": "string", "description": "Final material name in the library (deduped with _2, _3 on collision)." },
+        "attributes": { "type": "array", "items": { "$ref": "#/definitions/attribute" } }
+      }
+    },
+    "attribute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["BaseColor", "Metallic", "Roughness", "Specular", "Normal", "Height", "AO", "Opacity", "Emissive"]
+        },
+        "value": {
+          "description": "Scalar (number) for Metallic/Roughness/Specular/Opacity, or [r, g, b] linear colour for BaseColor/Emissive. Omit when a texture is given.",
+          "anyOf": [
+            { "type": "number" },
+            { "type": "array", "items": { "type": "number" }, "minItems": 3, "maxItems": 3 }
+          ]
+        },
+        "textureSrc": { "type": ["string", "null"], "description": "Texture image (.png/.jpg/.jpeg/.tga). BaseColor and Emissive textures are read as sRGB; all others as linear data." },
+        "strength": { "type": ["number", "null"], "description": "Normal-map strength (Normal kind only)." },
+        "normalY": { "type": ["string", "null"], "enum": ["OpenGL", "DirectX", null], "description": "Green-channel convention of a Normal texture." }
+      }
+    }
+  }
+}

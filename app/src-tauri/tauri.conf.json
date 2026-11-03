@@ -1,0 +1,51 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "uHub 3D",
+  "version": "0.1.0",
+  "identifier": "com.uhub3d.desktop",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "uHub 3D",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 1100,
+        "minHeight": 700,
+        "decorations": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; connect-src 'self' ipc: http://ipc.localhost https://ipc.localhost; img-src 'self' asset: http://asset.localhost data:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self'",
+      "assetProtocol": {
+        "enable": true,
+        "scope": []
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "resources": {
+      "oidn/OpenImageDenoise.dll": "OpenImageDenoise.dll",
+      "oidn/OpenImageDenoise_core.dll": "OpenImageDenoise_core.dll",
+      "oidn/OpenImageDenoise_device_cpu.dll": "OpenImageDenoise_device_cpu.dll",
+      "oidn/tbb12.dll": "tbb12.dll",
+      "oidn/tbbbind.dll": "tbbbind.dll",
+      "oidn/tbbbind_2_0.dll": "tbbbind_2_0.dll",
+      "oidn/tbbbind_2_5.dll": "tbbbind_2_5.dll"
+    },
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}

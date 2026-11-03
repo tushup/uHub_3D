@@ -1,0 +1,43 @@
+[package]
+name = "uhub3d"
+version = "0.1.0"
+description = "uHub 3D asset library"
+authors = ["uHub 3D"]
+edition = "2021"
+default-run = "uhub3d"
+
+[lib]
+name = "uhub3d_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["protocol-asset"] }
+tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ufbx = "0.9"
+thiserror = "2"
+uuid = { version = "1", features = ["v4"] }
+chrono = "0.4"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "tga", "hdr"] }
+tokio = { version = "1", features = ["net", "io-util", "sync", "time", "macros", "rt-multi-thread"] }
+dirs = "6"
+base64 = "0.22"
+trash = "5"
+clap = { version = "4", features = ["derive"] }
+oidn = "=2.3.3"
+
+[dev-dependencies]
+tempfile = "3"
+serde_json = "1"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 3
+panic = "abort"
+strip = true
