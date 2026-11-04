@@ -13,8 +13,8 @@ A desktop asset library for 3D models, materials and HDRIs. It renders path-trac
 
 | DCC | Status |
 |---|---|
-| Blender (4.2+) | Supported (Cycles and EEVEE) |
-| Unreal Engine (5.3+) | Supported |
+| Blender 5.1 and 5.2 | Supported (Cycles and EEVEE) |
+| Unreal Engine (5.7) | Supported |
 | Maya (2024+) | Not shipped in this release |
 
 uHub 3D is meant to be universal. The app talks to every DCC through one small localhost protocol, so more DCCs and renderers can be added as plugins without changing the library.
@@ -40,11 +40,13 @@ Then restart Blender, select an asset in uHub 3D, choose the Blender target and 
 click *Export*. Imported content lands under `/Game/uHub3D/` (3D assets, materials, HDRI and the
 `_Core` masters).
 
-| DCC version | Blender | Unreal | Maya |
-|---|---|---|---|
-| Blender 5.1.2 / Unreal 5.7.4 | Tested | Tested (5.7.4) | — |
-| Blender 5.2.3 LTS / Unreal 5.6 | Tested | Not tested — no 5.6 editor was installed on the test machine | — |
-| Maya | — | — | Not shipped in this release |
+Tested versions (only these are claimed; other versions are untested):
+
+| DCC | Tested versions |
+|---|---|
+| Blender | 5.1.2, 5.2.3 LTS |
+| Unreal Engine | 5.7.4 |
+| Maya | Not shipped in this release |
 
 ### Troubleshooting
 
@@ -55,6 +57,9 @@ click *Export*. Imported content lands under `/Game/uHub3D/` (3D assets, materia
   and enabled in the DCC, then restart the DCC (the Blender extension and the Unreal plugin both
   connect on startup and retry every few seconds). If you changed the bridge port in the app,
   set the same port in the Blender add-on preferences and restart the DCC.
+- **The Unreal plugin never connects** — it only starts in an editor with a real RHI. Do not
+  launch the editor with `-nullrhi`: Unreal runs no Python startup scripts in that mode, so the
+  plugin never loads. Start the editor normally.
 
 ## Develop
 
