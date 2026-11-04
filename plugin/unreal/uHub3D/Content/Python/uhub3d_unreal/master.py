@@ -50,6 +50,14 @@ def _build(material, masked: bool) -> None:
                 )
             except (AttributeError, TypeError):
                 pass
+            # Default to the engine flat normal so materials without a
+            # Normal map do not sample the generic DefaultTexture (which
+            # makes the MI editor warn "samples DefaultTexture as Normal").
+            default_normal = unreal.load_asset(
+                "/Engine/EngineMaterials/DefaultNormal.DefaultNormal"
+            )
+            if default_normal is not None:
+                texture_param.set_editor_property("texture", default_normal)
         switch = _create(
             material, unreal.MaterialExpressionStaticSwitchParameter, -150, y
         )

@@ -165,6 +165,23 @@ def main():
         load("/Game/uHub3D/Materials/RedPaint/MI_RedPaint.MI_RedPaint") is not None,
     )
 
+    # --- Master Normal default -------------------------------------------
+    def normal_default_ok(master_name):
+        master = load(f"/Game/uHub3D/_Core/{master_name}.{master_name}")
+        if master is None:
+            return False
+        normal_tex = unreal.MaterialEditingLibrary.get_material_default_texture_parameter_value(
+            master, "Normal_Tex"
+        )
+        return normal_tex is not None and normal_tex.get_path_name().startswith(
+            "/Engine/EngineMaterials/DefaultNormal"
+        )
+
+    check(
+        "normal_default_is_flat_normal",
+        normal_default_ok("M_uHub3D") and normal_default_ok("M_uHub3D_Masked"),
+    )
+
     # --- HDRI job ---------------------------------------------------------
     hdri_dir = os.path.join(root, "HDRI", "Sky", "Sky")
     os.makedirs(hdri_dir)
