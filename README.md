@@ -13,11 +13,48 @@ A desktop asset library for 3D models, materials and HDRIs. It renders path-trac
 
 | DCC | Status |
 |---|---|
-| Blender (4.2+) | In development |
-| Unreal Engine (5.3+) | In development |
-| Maya (2024+) | Planned |
+| Blender (4.2+) | Supported (Cycles and EEVEE) |
+| Unreal Engine (5.3+) | Supported |
+| Maya (2024+) | Not shipped in this release |
 
 uHub 3D is meant to be universal. The app talks to every DCC through one small localhost protocol, so more DCCs and renderers can be added as plugins without changing the library.
+
+## Plugins
+
+The app and the DCCs talk over a localhost bridge (TCP `127.0.0.1:47913` by default; change it in
+*Preferences → DCC Bridge*). The port must be free when the app starts, otherwise the export dock
+shows *Bridge offline*. Maya is not shipped in this release.
+
+**Blender** — install the extension zip `plugin/dist/uhub3d-1.0.0.zip` (in Blender:
+*Preferences → Get Extensions → Install from Disk…*, or from the command line):
+
+```powershell
+& "C:\Program Files\Blender Foundation\Blender 5.1\blender.exe" --command extension install-file -r user_default -e "plugin\dist\uhub3d-1.0.0.zip"
+```
+
+Then restart Blender, select an asset in uHub 3D, choose the Blender target and *Cycles* or
+*EEVEE* in the export dock, and click *Export*.
+
+**Unreal** — unzip `plugin/dist/uhub3d-unreal.zip` so that `uHub3D/uHub3D.uplugin` sits in
+`<YourProject>/Plugins/uHub3D/`. Restart Unreal, choose the *Unreal* target in the export dock, and
+click *Export*. Imported content lands under `/Game/uHub3D/` (3D assets, materials, HDRI and the
+`_Core` masters).
+
+| DCC version | Blender | Unreal | Maya |
+|---|---|---|---|
+| Blender 5.1.2 / Unreal 5.7.4 | Tested | Tested (5.7.4) | — |
+| Blender 5.2.3 LTS / Unreal 5.6 | Tested | Not tested — no 5.6 editor was installed on the test machine | — |
+| Maya | — | — | Not shipped in this release |
+
+### Troubleshooting
+
+- **Export dock says *Bridge offline: port 47913 in use*** — another program (often a second
+  uHub 3D instance) already holds the bridge port. Close it, or pick a different port in
+  *Preferences → DCC Bridge* and restart the DCC so its plugin reconnects.
+- **A DCC pill stays grey and the plugin does not connect** — make sure the plugin is installed
+  and enabled in the DCC, then restart the DCC (the Blender extension and the Unreal plugin both
+  connect on startup and retry every few seconds). If you changed the bridge port in the app,
+  set the same port in the Blender add-on preferences and restart the DCC.
 
 ## Develop
 

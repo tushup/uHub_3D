@@ -35,7 +35,11 @@ def copy_core(source_plugin: str, python_root: str) -> None:
     plugin_dir = os.path.dirname(os.path.abspath(__file__))
     plugin_root = os.path.dirname(plugin_dir)
     core = os.path.join(plugin_root, "common", "uhub")
-    shutil.copytree(core, os.path.join(python_root, "uhub"))
+    shutil.copytree(
+        core,
+        os.path.join(python_root, "uhub"),
+        ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+    )
 
 
 def build_blender(plugin_root: str, dist: str) -> str:

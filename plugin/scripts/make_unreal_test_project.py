@@ -39,7 +39,11 @@ def main(argv: list[str]) -> int:
         shutil.rmtree(destination)
     shutil.copytree(source, destination)
     core = os.path.join(plugin_root, "common", "uhub")
-    shutil.copytree(core, os.path.join(destination, "Content", "Python", "uhub"))
+    shutil.copytree(
+        core,
+        os.path.join(destination, "Content", "Python", "uhub"),
+        ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+    )
     print(f"Wrote {target}")
     return 0
 
